@@ -127,21 +127,6 @@ spec:
       - kind: Route
         version: v1
       specDescriptors:
-      - description: The name of the serviceaccount used by the Elasticsearch pods
-        displayName: Service Account
-        path: serviceAccountName
-        x-descriptors:
-          - 'urn:alm:descriptor:io.kubernetes:ServiceAccount'
-      - description: The name of the configmap used by the Elasticsearch pods
-        displayName: Config Map
-        path: configMapName
-        x-descriptors:
-          - 'urn:alm:descriptor:io.kubernetes:ConfigMap'
-      - description: The name of the secret used by the Elasticsearch pods
-        displayName: Secret
-        path: secretName
-        x-descriptors:
-          - 'urn:alm:descriptor:io.kubernetes:Secret'
       - description: Limits describes the minimum/maximum amount of compute resources required/allowed
         displayName: Resource Requirements
         path: nodeSpec.resources
