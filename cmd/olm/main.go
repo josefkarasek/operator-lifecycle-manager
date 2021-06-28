@@ -16,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -257,10 +258,30 @@ func main() {
 		go monitor.Run(op.Done())
 	}
 
+	// Emit CSV metric
+	if err = ensureCSVMetric(logger, crClient); err != nil {
+		logger.WithError(err).Fatalf("error emitting CSV metric")
+	}
+
 	// Start the controller manager
 	if err := mgr.Start(ctx); err != nil {
 		logger.WithError(err).Fatal("controller manager stopped")
 	}
 
 	<-op.Done()
+}
+
+func ensureCSVMetric(logger *logrus.Logger, c *versioned.Clientset) error {
+	logger.Debug("Emitting CSV metric")
+	listOpts := metav1.ListOptions{}
+	csvs, err := c.OperatorsV1alpha1().ClusterServiceVersions(metav1.NamespaceAll).List(context.TODO(), listOpts)
+	if err != nil {
+		return err
+	}
+
+	for _, csv := range csvs.Items {
+		metrics.EmitCSVMetric(&csv, &csv)
+	}
+
+	return nil
 }
