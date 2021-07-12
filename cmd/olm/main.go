@@ -260,7 +260,7 @@ func main() {
 
 	// Emit CSV metric
 	if err = ensureCSVMetric(logger, crClient); err != nil {
-		logger.WithError(err).Fatalf("error emitting CSV metric")
+		logger.WithError(err).Fatalf("error emitting metrics for existing CSV")
 	}
 
 	// Start the controller manager
@@ -272,7 +272,7 @@ func main() {
 }
 
 func ensureCSVMetric(logger *logrus.Logger, c *versioned.Clientset) error {
-	logger.Debug("emitting CSV metric")
+	logger.Debug("emitting metrics for existing CSVs")
 	listOpts := metav1.ListOptions{}
 	csvs, err := c.OperatorsV1alpha1().ClusterServiceVersions(metav1.NamespaceAll).List(context.TODO(), listOpts)
 	if err != nil {
