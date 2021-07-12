@@ -272,7 +272,7 @@ func main() {
 }
 
 func ensureCSVMetric(logger *logrus.Logger, c *versioned.Clientset) error {
-	logger.Debug("Emitting CSV metric")
+	logger.Debug("emitting CSV metric")
 	listOpts := metav1.ListOptions{}
 	csvs, err := c.OperatorsV1alpha1().ClusterServiceVersions(metav1.NamespaceAll).List(context.TODO(), listOpts)
 	if err != nil {
