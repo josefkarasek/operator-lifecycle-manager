@@ -130,6 +130,10 @@ var _ = Describe("Metrics are generated for OLM managed resources", func() {
 
 				_, err = fetchCSV(crc, csv.Name, testNamespace, csvSucceededChecker)
 				Expect(err).ToNot(HaveOccurred())
+
+				Expect(getMetricsFromPod(c, getPodWithLabel(c, "app=olm-operator"), "8081")).To(
+					ContainElement(LikeMetric(WithFamily("csv_succeeded"), WithName(csv.Name), WithValue(1))),
+				)
 			})
 			AfterEach(func() {
 				if cleanupCSV != nil {
@@ -137,12 +141,7 @@ var _ = Describe("Metrics are generated for OLM managed resources", func() {
 				}
 			})
 			It("csv metric is preserved", func() {
-				Expect(getMetricsFromPod(c, getPodWithLabel(c, "app=olm-operator"), "8081")).To(
-					ContainElement(LikeMetric(WithFamily("csv_succeeded"), WithName(csv.Name), WithValue(1))),
-				)
-
 				restartDeploymentWithLabel(c, "app=olm-operator")
-
 				Expect(getMetricsFromPod(c, getPodWithLabel(c, "app=olm-operator"), "8081")).To(
 					ContainElement(LikeMetric(WithFamily("csv_succeeded"), WithName(csv.Name), WithValue(1))),
 				)
