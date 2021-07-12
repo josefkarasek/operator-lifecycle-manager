@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/klog"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -259,7 +259,7 @@ func main() {
 	}
 
 	// Emit CSV metric
-	if err = ensureCSVMetric(logger, crClient); err != nil {
+	if err = ensureCSVMetric(logger, op); err != nil {
 		logger.WithError(err).Fatalf("error emitting metrics for existing CSV")
 	}
 
@@ -271,16 +271,15 @@ func main() {
 	<-op.Done()
 }
 
-func ensureCSVMetric(logger *logrus.Logger, c *versioned.Clientset) error {
+func ensureCSVMetric(logger *logrus.Logger, c *olm.Operator) error {
 	logger.Debug("emitting metrics for existing CSVs")
-	listOpts := metav1.ListOptions{}
-	csvs, err := c.OperatorsV1alpha1().ClusterServiceVersions(metav1.NamespaceAll).List(context.TODO(), listOpts)
+	csvs, err := c.GetLister().OperatorsV1alpha1().ClusterServiceVersionLister().List(labels.Everything())
 	if err != nil {
 		return err
 	}
 
-	for _, csv := range csvs.Items {
-		metrics.EmitCSVMetric(&csv, &csv)
+	for _, csv := range csvs {
+		metrics.EmitCSVMetric(csv, csv)
 	}
 
 	return nil
